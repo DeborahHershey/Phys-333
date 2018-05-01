@@ -1,0 +1,74 @@
+int setting;
+int sensor;
+int b;
+int c;
+#include <Wire.h>
+#include "RTClib.h"
+
+RTC_DS1307 rtc;
+
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+void setup() {
+  Serial.begin(9600);
+  ////////////
+  setting=1; //choose either 1, 2, or 3; 1 being clock, 2 being sun, 3 being "maual"
+  ////////////
+  pinMode(13,OUTPUT);//Warning light
+  pinMode(7,OUTPUT);//motor
+  pinMode(1,INPUT);//solar sensor
+  sensor = digitalRead(1);
+  digitalWrite(0,LOW);
+  rtc.begin();
+
+}
+
+void loop() {
+  if (setting == 1) {
+    //run clock
+    DateTime now = rtc.now();
+    c = now.minute();
+    b = now.hour();
+    // set time for open
+    if (b == 8 && c == 23) {
+      digitalWrite(7, HIGH);
+      delay(3000);
+      digitalWrite(7,LOW);
+    }
+    //set time for close
+    else if (b == 20 && c == 00){
+      digitalWrite(7,HIGH);
+      delay(3000);
+      digitalWrite(7, LOW);
+    }
+    else{}
+    delay(60000);
+  }
+  else if (setting == 2) {
+    //run light level detector
+    if (sensor == HIGH){
+      digitalWrite(7,HIGH);
+      delay(3000);
+      digitalWrite(7,LOW);
+      delay(28800000);
+    }
+    else if (sensor == LOW){
+      digitalWrite(7,HIGH);
+      delay(3000);
+      digitalWrite(7,LOW);
+      delay(28800000);
+      }
+  }
+  else if (setting == 3) {
+    Serial.println("This device is in MANUAL MODE");
+    delay(86400000);
+  }
+  else if (setting > 3 or setting < 1){
+    Serial.println("ERROR! SETTING NOT 1, 2, OR 3! ERROR!");
+    digitalWrite(13, HIGH);
+    delay(200);
+    digitalWrite(13, LOW);
+    delay(200);
+  }
+
+}
